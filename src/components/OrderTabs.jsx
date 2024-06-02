@@ -25,16 +25,14 @@ const OrderTabs = () => {
 
     const dispatch = useDispatch();
 
-    // Function to handle new sale order submission
+
     const handleNewSaleOrderSubmit = (newOrder) => {
-        // Dispatch action to add the new order to Redux store
-        console.log("New Order Submitted:", newOrder); // Logging the submitted order data
+        console.log("New Order Submitted:", newOrder);
         dispatch(addOrder(newOrder));
-        // Close the modal
         setIsModalOpen(false);
     };
 
-    // Filtered orders based on the selected filter
+
     const filteredOrders = orders.filter(order => {
         if (filter === 'all') {
             return true;
@@ -47,15 +45,15 @@ const OrderTabs = () => {
         }
     });
 
-    // Function to open the modal
+
     const handleNewSaleOrder = () => {
         setIsModalOpen(true);
     };
 
-    // Check if the component rerenders after form submission
+
     useEffect(() => {
-        console.log("Component rerendered"); // Logging component rerendering
-    }, [orders]); // Rerender when orders state changes
+
+    }, [orders]);
 
     return (
         <TableContainer mx={4}>
@@ -85,7 +83,7 @@ const OrderTabs = () => {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {/* Render each order in the table */}
+
                         {filteredOrders.map(order => (
                             <Tr key={order.id}>
                                 <Td>{order.id}</Td>
@@ -101,7 +99,7 @@ const OrderTabs = () => {
                 </Table>
             </TableContainer>
 
-            {/* Render the SaleOrderForm with isOpen state and handleNewSaleOrderSubmit function */}
+
             <SaleOrderForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={handleNewSaleOrderSubmit} />
         </TableContainer>
     );

@@ -86,7 +86,7 @@ const SelectedProductsInput = ({
     delete newProductData[productId];
     setProductData(newProductData);
 
-    // Maintain values for remaining products
+
     reset({
       products: updatedProducts.map((productId) => ({
         id: productId,
@@ -181,10 +181,9 @@ const SelectedProductsInput = ({
           const updatedSelectedProducts = selectedOptions.map(
             (option) => option.value
           );
-          // handleSave();
+       
           onChange(updatedSelectedProducts);
 
-          // Maintain existing productData for selected products
           const newProductData = {};
           updatedSelectedProducts.forEach((productId) => {
             newProductData[productId] = productData[productId] || {};
@@ -254,7 +253,7 @@ const SelectedProductsInput = ({
                             name={`products[${productIndex}].sku[${sku.id}].totalItems`}
                             control={control}
                             rules={{ required: "Total items are required" }}
-                            defaultValue={0} // Ensure default value is 0
+                            defaultValue={0} 
                             render={({ field }) => (
                               <Input
                                 placeholder="Total Items"
@@ -263,7 +262,7 @@ const SelectedProductsInput = ({
                                 value={
                                   watch(
                                     `products[${productIndex}].sku[${sku.id}].totalItems`
-                                  ) ?? 0 // Ensure value is 0 if undefined
+                                  ) ?? 0 
                                 }
                                 onChange={(e) => {
                                   field.onChange(e);
@@ -311,7 +310,7 @@ const SelectedProductsInput = ({
                         <Controller
                           name={`products[${productIndex}].sku[${sku.id}].netSkuPrice`}
                           control={control}
-                          defaultValue={0} // Ensure default value is provided
+                          defaultValue={0} 
                           render={({ field }) => (
                             <Text {...field} ml={2} color="gray.700">
                               Rs.{" "}

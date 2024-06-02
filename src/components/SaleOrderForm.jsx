@@ -86,35 +86,7 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
     onClose();
   };
   console.log(selectedProducts, "selectedProducts");
-  // const onSubmit = (data) => {
-  //   const items = selectedProducts
-  //     .map((productId) => {
-  //       const product = products.find((p) => p.id === productId);
-  //       return product.sku.map((sku) => {
-  //         const skuData = productData[productId]?.sku?.[sku.id];
-  //         return {
-  //           sku_id: sku.id,
-  //           price: sku.selling_price,
-  //           quantity: skuData ? skuData.totalItems : 0,
-  //         };
-  //       });
-  //     })
-  //     .flat();
-
-  //   const orderData = {
-  //     ...data,
-  //     customer_id: parseInt(selectedCustomer), // ensure customer_id is a number
-  //     items,
-  //   };
-
-  //   if (existingOrder) {
-  //     dispatch(updateOrder({ ...orderData, id: existingOrder.id }));
-  //   } else {
-  //     dispatch(addOrder(orderData));
-  //   }
-  //   updateLocalOrders(orderData);
-  //   onClose();
-  // };
+  
 
   const updateTotals = (items, price) => {
     setTotalItems(items);
