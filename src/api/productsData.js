@@ -1,4 +1,3 @@
-// src/api/productsData.js
 const productsData = [
   {
     id: 210,
@@ -29,7 +28,6 @@ const productsData = [
         product: 210,
       },
 
-      // Add the other SKU entries here
     ],
     updated_on: "2024-05-24T12:46:41.995873Z",
     adding_date: "2024-05-24T12:46:41.995828Z",
@@ -54,6 +52,19 @@ const productsData = [
         product: 209,
       },
     ],
+    updated_on: "2024-05-24T12:46:41.995873Z",
+    adding_date: "2024-05-24T12:46:41.995828Z",
+  },
+  {
+    id: 206,
+    display_id: 9,
+    owner: 1081,
+    name: "Product3",
+    category: "The god of War",
+    characteristics: "New Product Characteristics",
+    features: "",
+    brand: "New Product Brand",
+    sku:[],
     updated_on: "2024-05-24T12:46:41.995873Z",
     adding_date: "2024-05-24T12:46:41.995828Z",
   },

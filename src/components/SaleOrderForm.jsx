@@ -1,36 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Input,
-  Select,
-  Checkbox,
-  VStack,
-  HStack,
-  FormControl,
-  FormLabel,
-  ButtonGroup,
+  Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input,
+  Select, Checkbox, VStack, HStack, FormControl, FormLabel, ButtonGroup,
 } from "@chakra-ui/react";
+
 import { useDispatch, useSelector } from "react-redux";
 import { addOrder, updateOrder } from "../redux/slices/ordersSlice";
 import SelectedProductsInput from "./SelectedProductsInput.jsx";
 
-const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
+const SaleOrderForm = ({ isOpen, onClose, existingOrder, readonly }) => {
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
+    reset,
   } = useForm();
+
   const dispatch = useDispatch();
   const customers = useSelector((state) => state.customers.customers);
   const products = useSelector((state) => state.products.products);
+
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -43,57 +34,50 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
       setValue("paid", existingOrder.paid || false);
       setSelectedCustomer(existingOrder.customer_id || "");
       setSelectedProducts(
-        existingOrder.items
-          ? existingOrder.items.map((item) => item.sku_id)
-          : []
+        existingOrder.items ? existingOrder.items.map((item) => item.sku_id) : []
       );
     } else {
-      setValue("invoice_number", "");
-      setValue("invoice_date", "");
-      setValue("paid", false);
-      setSelectedCustomer("");
-      setSelectedProducts([]);
+      reset();
     }
-  }, [existingOrder, setValue]);
+  }, [existingOrder, setValue, reset, customers]);
 
   const updateLocalOrders = (data) => {
     const orders = JSON.parse(localStorage.getItem("orders")) || [];
     const updatedOrders = existingOrder
       ? orders.map((order) =>
-          order.invoice_no === existingOrder.invoice_no
-            ? { ...order, ...data }
-            : order
-        )
+        order.invoice_no === existingOrder.invoice_no
+          ? { ...order, ...data }
+          : order
+      )
       : [...orders, data];
     localStorage.setItem("orders", JSON.stringify(updatedOrders));
   };
 
   const onSubmit = (data) => {
-    console.log("submit");
+
+    const currentDate = new Date().toISOString().split('T')[0];
     const orderData = {
       ...data,
       customer_id: selectedCustomer,
       items: selectedProducts,
+      totalPrice,
+      totalItems,
+      lastModified: currentDate,
     };
     if (existingOrder) {
       dispatch(updateOrder({ ...orderData, id: existingOrder.id }));
+
     } else {
       dispatch(addOrder(orderData));
     }
     updateLocalOrders(orderData);
-    console.log("data", data);
-    console.log("orderData", orderData);
     onClose();
+    reset();
   };
-  console.log(selectedProducts, "selectedProducts");
-  
 
   const updateTotals = (items, price) => {
     setTotalItems(items);
     setTotalPrice(price);
-  };
-  const handleSelectedItems = (selectedItems) => {
-    console.log("Selected items:", selectedItems);
   };
 
   return (
@@ -104,12 +88,7 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
           {existingOrder ? "Edit Sale Order" : "Create Sale Order"}
         </ModalHeader>
         <ModalBody>
-          <VStack
-            as="form"
-            onSubmit={handleSubmit(onSubmit)}
-            spacing={4}
-            width="100%"
-          >
+          <VStack as="form" spacing={4} width="100%">
             <FormControl isInvalid={errors.invoice_number}>
               <FormLabel>Invoice Number</FormLabel>
               <Input
@@ -117,6 +96,7 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
                 {...register("invoice_number", {
                   required: "Invoice number is required",
                 })}
+                readOnly={readonly}
               />
             </FormControl>
             <FormControl isInvalid={errors.invoice_date}>
@@ -127,6 +107,7 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
                 {...register("invoice_date", {
                   required: "Invoice date is required",
                 })}
+                readOnly={readonly}
               />
             </FormControl>
             <FormControl isInvalid={errors.customer_id}>
@@ -138,11 +119,12 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
                 })}
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
+                readOnly={readonly}
               >
                 {customers.map((customer) => (
                   <option
                     key={customer.id}
-                    value={customer.customer_profile.id}
+                    value={customer.name}
                   >
                     {customer.customer_profile.name}
                   </option>
@@ -156,19 +138,19 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
                 selectedProducts={selectedProducts}
                 onChange={setSelectedProducts}
                 updateTotals={updateTotals}
-                onSelectedItemsChange={handleSelectedItems}
+                readonly={readonly}
               />
             </FormControl>
             <HStack spacing={4} justifyContent="flex-end">
               <Button colorScheme="green" size="xs">
                 Total Price: {totalPrice}
               </Button>
-              <Button colorScheme="green" size="xs">
+              <Button colorScheme="green" size="xs" >
                 Total Items: {totalItems}
               </Button>
             </HStack>
             <FormControl>
-              <Checkbox {...register("paid")}>Paid</Checkbox>
+              <Checkbox {...register("paid")} readOnly={readonly}>Paid</Checkbox>
             </FormControl>
           </VStack>
         </ModalBody>
@@ -177,15 +159,17 @@ const SaleOrderForm = ({ isOpen, onClose, existingOrder }) => {
             <Button size="md" colorScheme="red" onClick={onClose} flex="1">
               Discard
             </Button>
-            <Button
-              size="md"
-              colorScheme="green"
-              type="submit"
-              flex="1"
-              onClick={handleSubmit(onSubmit)}
-            >
-              {existingOrder ? "Update Sale Order" : "Create Sale Order"}
-            </Button>
+            {!readonly && (
+              <Button
+                size="md"
+                colorScheme="green"
+                type="submit"
+                flex="1"
+                onClick={handleSubmit(onSubmit)}
+              >
+                {existingOrder ? "Update Sale Order" : "Create Sale Order"}
+              </Button>
+            )}
           </ButtonGroup>
         </ModalFooter>
       </ModalContent>

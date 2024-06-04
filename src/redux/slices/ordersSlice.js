@@ -1,30 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const ordersSlice = createSlice({
-    name: 'orders',
-    initialState: {
-        activeOrders: [],
-        completedOrders: [],
+  name: 'orders',
+  initialState: {
+    activeOrders: [],
+  },
+  reducers: {
+    addOrder: (state, action) => {
+      state.activeOrders.push(action.payload);
     },
-    reducers: {
-        addOrder: (state, action) => {
-            state.activeOrders.push(action.payload);
-        },
-        updateOrder: (state, action) => {
-            const index = state.activeOrders.findIndex(order => order.invoice_no === action.payload.invoice_no);
-            if (index !== -1) {
-                state.activeOrders[index] = action.payload;
-            }
-        },
-        completeOrder: (state, action) => {
-            const index = state.activeOrders.findIndex(order => order.invoice_no === action.payload.invoice_no);
-            if (index !== -1) {
-                const [completedOrder] = state.activeOrders.splice(index, 1);
-                state.completedOrders.push(completedOrder);
-            }
-        },
+    updateOrder: (state, action) => {
+      const index = state.activeOrders.findIndex(order => order.id === action.payload.id);
+      if (index !== -1) {
+        state.activeOrders[index] = action.payload;
+      }
     },
+  },
 });
 
-export const { addOrder, updateOrder, completeOrder } = ordersSlice.actions;
+export const { addOrder, updateOrder } = ordersSlice.actions;
 export default ordersSlice.reducer;

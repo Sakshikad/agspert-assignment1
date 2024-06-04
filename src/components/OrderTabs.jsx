@@ -1,59 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import {
-    HStack,
-    Button,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
-    TableContainer,
-    Spacer,
-    ButtonGroup,
-    IconButton
-} from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { HStack, Button, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Spacer, ButtonGroup, IconButton } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { addOrder, updateOrder } from '../redux/slices/ordersSlice';
+import { addOrder } from '../redux/slices/ordersSlice';
 import SaleOrderForm from './SaleOrderForm';
 
 const OrderTabs = () => {
-    const [filter, setFilter] = useState('all');
+    const [filter, setFilter] = useState('active');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingOrder, setEditingOrder] = useState(null);
     const orders = useSelector(state => state.orders.activeOrders);
-
     const dispatch = useDispatch();
 
-
     const handleNewSaleOrderSubmit = (newOrder) => {
-        console.log("New Order Submitted:", newOrder);
         dispatch(addOrder(newOrder));
         setIsModalOpen(false);
+        setEditingOrder(null);
     };
 
-
     const filteredOrders = orders.filter(order => {
-        if (filter === 'all') {
-            return true;
-        } else if (filter === 'active') {
-            return order.status === 'active';
+        if (filter === 'active') {
+            return !order.paid; 
         } else if (filter === 'completed') {
-            return order.status === 'completed';
-        } else {
-            return true;
+            return order.paid; 
         }
     });
 
-
     const handleNewSaleOrder = () => {
+        setEditingOrder(null);
         setIsModalOpen(true);
     };
 
+    const handleEditOrder = (order) => {
+        setEditingOrder(order);
+        setIsModalOpen(true);
+    };
 
-    useEffect(() => {
-
-    }, [orders]);
+    const handleViewOrder = (order) => {
+        setEditingOrder(order);
+        setIsModalOpen(true);
+    };
 
     return (
         <TableContainer mx={4}>
@@ -83,24 +69,29 @@ const OrderTabs = () => {
                         </Tr>
                     </Thead>
                     <Tbody>
-
-                        {filteredOrders.map(order => (
-                            <Tr key={order.id}>
-                                <Td>{order.id}</Td>
-                                <Td>{order.customerName}</Td>
-                                <Td>{order.price}</Td>
-                                <Td>{order.lastModified}</Td>
+                        {filteredOrders.map((order, index) => (
+                            <Tr key={order.id || index}>
+                                <Td>{index + 1}</Td>
+                                <Td>{order.customer_id}</Td>
+                                <Td>{order.totalPrice}</Td>
+                                <Td>{new Date(order.lastModified).toLocaleDateString()}</Td> 
                                 <Td>
-                                    <Button size='xs' mx={1}>Edit/View</Button>
+                                    {order.paid ? (
+                                        <Button size='xs' mx={1} onClick={() => handleViewOrder(order)}>View</Button>
+                                    ) : (
+                                        <Button size='xs' mx={1} onClick={() => handleEditOrder(order)}>Edit</Button>
+                                    )}
                                 </Td>
                             </Tr>
                         ))}
                     </Tbody>
                 </Table>
             </TableContainer>
-
-
-            <SaleOrderForm isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={handleNewSaleOrderSubmit} />
+            <SaleOrderForm
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                existingOrder={editingOrder}
+            />
         </TableContainer>
     );
 };
